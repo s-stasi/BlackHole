@@ -31,12 +31,16 @@ import 'package:blackhole/Helpers/format.dart';
 import 'package:blackhole/Helpers/mediaitem_converter.dart';
 import 'package:blackhole/Screens/Common/song_list.dart';
 import 'package:blackhole/Screens/Library/liked.dart';
+import 'package:blackhole/Screens/LocalMusic/downed_songs_cache.dart';
 import 'package:blackhole/Screens/Player/audioplayer.dart';
 import 'package:blackhole/Screens/Search/artists.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+
+import '../LocalMusic/downed_songs.dart';
 
 bool fetched = false;
 List preferredLanguage = Hive.box('settings')
@@ -66,6 +70,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
       Hive.box('settings').get('playlistDetails', defaultValue: {}) as Map;
   int recentIndex = 0;
   int playlistIndex = 1;
+  int offlineIndex = 2;
 
   Future<void> getHomePageData() async {
     Map recievedData = await SaavnAPI().fetchHomePageData();
@@ -80,7 +85,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
     if (recievedData.isNotEmpty) {
       Hive.box('cache').put('homepage', recievedData);
       data = recievedData;
-      lists = ['recent', 'playlist', ...?data['collections']];
+      lists = ['recent', 'playlist', 'offline', ...?data['collections']];
       lists.insert((lists.length / 2).round(), 'likedArtists');
     }
     setState(() {});
@@ -374,6 +379,49 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                         ],
                       );
               }
+              if (idx == offlineIndex) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 10, 0, 5),
+                          child: Text(
+                            'Offline albums',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    HorizontalAlbumsList(
+                      songsList:
+                          GetIt.I.get<DownedSongsCache>().sortedAlbumKeysList,
+                      onTap: (int idx) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DownloadedSongs(
+                              title: GetIt.I
+                                      .get<DownedSongsCache>()
+                                      .sortedAlbumKeysList[
+                                  idx], // widget.albumsList[index],
+                              cachedSongs:
+                                  GetIt.I.get<DownedSongsCache>().albums[GetIt.I
+                                      .get<DownedSongsCache>()
+                                      .sortedAlbumKeysList[idx]],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }
+
               if (lists[idx] == 'likedArtists') {
                 final List likedArtistsList = likedArtists.values.toList();
                 return likedArtists.isEmpty

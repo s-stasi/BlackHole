@@ -163,9 +163,9 @@ class _DownloadedSongsState extends State<DownloadedSongs>
         _genres[_songs[i].genre]!.add(_songs[i]);
       } else {
         _genres.addEntries([
-          MapEntry(_songs[i].genre!, [_songs[i]])
+          MapEntry(_songs[i].genre.toString(), [_songs[i]])
         ]);
-        _sortedGenreKeysList.add(_songs[i].genre!);
+        _sortedGenreKeysList.add(_songs[i].genre.toString());
       }
     }
   }

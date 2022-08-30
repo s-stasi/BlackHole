@@ -30,6 +30,7 @@ import 'package:blackhole/Screens/Library/downloads.dart';
 import 'package:blackhole/Screens/Library/nowplaying.dart';
 import 'package:blackhole/Screens/Library/playlists.dart';
 import 'package:blackhole/Screens/Library/recent.dart';
+import 'package:blackhole/Screens/LocalMusic/downed_songs_cache.dart';
 import 'package:blackhole/Screens/Login/auth.dart';
 import 'package:blackhole/Screens/Login/pref.dart';
 import 'package:blackhole/Screens/Player/audioplayer.dart';
@@ -101,6 +102,7 @@ Future<void> startService() async {
   );
   GetIt.I.registerSingleton<AudioPlayerHandler>(audioHandler);
   GetIt.I.registerSingleton<MyTheme>(MyTheme());
+  GetIt.I.registerSingleton<DownedSongsCache>(DownedSongsCache());
 }
 
 Future<void> openHiveBox(String boxName, {bool limit = false}) async {
